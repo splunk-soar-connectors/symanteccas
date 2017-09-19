@@ -1,7 +1,7 @@
 {
   "appid": "7cec56aa-f585-4e3d-8a26-a25af95c1878",
   "name": "Symantec CAS",
-  "description": "This app supports <b>file investigation</b> on the Symantec Content Analysis System",
+  "description": "This app supports file investigation on the Symantec Content Analysis System",
   "publisher": "Phantom",
   "package_name": "phantom_symanteccas",
   "type": "sandbox",
@@ -12,7 +12,7 @@
   "product_vendor": "Symantec",
   "product_name": "Symantec CAS",
   "product_version_regex": ".*",
-  "min_phantom_version": "2.1.478",
+  "min_phantom_version": "3.0.247",
   "logo": "symantec.png",
   "configuration": {
     "url": {
@@ -29,7 +29,7 @@
     },
     "api_key": {
       "description": "API key",
-      "data_type": "string",
+      "data_type": "password",
       "order": 2,
       "required": true
     },
