@@ -110,7 +110,7 @@ class SymanteccasConnector(BaseConnector):
                                     headers=self._headers, files=files, verify=self._verify_server_cert)
 
         except Exception as e:
-            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, object=e)
+            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, e)
             # set the action_result status to error, the handler function
             # will most probably return as is
             return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e), rest_resp
@@ -215,7 +215,7 @@ class SymanteccasConnector(BaseConnector):
 
         except Exception as e:
             # In case of any other error scenarios
-            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, object=e)
+            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, e)
             self.set_status_save_progress(phantom.APP_ERROR, SYMANTECCAS_CONNECTIVITY_FAIL, e)
             return action_result.set_status(phantom.APP_ERROR)
 
@@ -253,7 +253,7 @@ class SymanteccasConnector(BaseConnector):
                     sslopt={"cert_reqs": ssl.CERT_NONE})
 
         except Exception as e:
-            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, object=e)
+            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, e)
             return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e)
 
         return phantom.APP_SUCCESS
@@ -341,7 +341,7 @@ class SymanteccasConnector(BaseConnector):
                 self.debug_print(SYMANTECCAS_ERR_WEBSOCKET_TIMEOUT)
                 return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_WEBSOCKET_TIMEOUT, wse), None
             except Exception as e:
-                self.debug_print(SYMANTECCAS_ERR_WEBSOCKET, object=e)
+                self.debug_print(SYMANTECCAS_ERR_WEBSOCKET, e)
                 return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_WEBSOCKET, e), None
 
             # If we get response before timeout
