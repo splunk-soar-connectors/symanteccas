@@ -18,18 +18,18 @@ from phantom.action_result import ActionResult
 from phantom.vault import Vault
 
 # Local imports
-from symanteccas_consts import *
+from .symanteccas_consts import *
 
 import requests
 import json
 import ssl
 import os
+import websocket
 
 app_dir = os.path.dirname(os.path.abspath(__file__))  # noqa
 if (os.path.exists('{}/dependencies'.format(app_dir))):  # noqa
     os.sys.path.insert(0, '{}/dependencies/websocket-client'.format(app_dir))  # noqa
     os.sys.path.insert(0, '{}/dependencies'.format(app_dir))  # noqa
-import websocket  # pylint: disable=E0401
 
 
 class SymanteccasConnector(BaseConnector):
@@ -115,7 +115,7 @@ class SymanteccasConnector(BaseConnector):
             # will most probably return as is
             return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e), rest_resp
 
-        if response.status_code in error_resp_dict.keys():
+        if response.status_code in list(error_resp_dict.keys()):
             self.debug_print(SYMANTECCAS_ERR_FROM_SERVER.format(status=response.status_code,
                                                                 detail=error_resp_dict[response.status_code]))
             # set the action_result status to error, the handler function
@@ -414,14 +414,14 @@ if __name__ == '__main__':
 
     pudb.set_trace()
     if len(sys.argv) < 2:
-        print 'No test json specified as input'
+        print('No test json specified as input')
         exit(0)
     with open(sys.argv[1]) as f:
         in_json = f.read()
         in_json = json.loads(in_json)
-        print json.dumps(in_json, indent=4)
+        print(json.dumps(in_json, indent=4))
         connector = SymanteccasConnector()
         connector.print_progress_message = True
         ret_val = connector._handle_action(json.dumps(in_json), None)
-        print json.dumps(json.loads(ret_val), indent=4)
+        print(json.dumps(json.loads(ret_val), indent=4))
     exit(0)
