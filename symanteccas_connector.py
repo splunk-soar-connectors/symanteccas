@@ -23,13 +23,8 @@ from symanteccas_consts import *
 import requests
 import json
 import ssl
-import os
 
-app_dir = os.path.dirname(os.path.abspath(__file__))  # noqa
-if (os.path.exists('{}/dependencies'.format(app_dir))):  # noqa
-    os.sys.path.insert(0, '{}/dependencies/websocket-client'.format(app_dir))  # noqa
-    os.sys.path.insert(0, '{}/dependencies'.format(app_dir))  # noqa
-import websocket  # pylint: disable=E0401
+import websocket
 
 
 class SymanteccasConnector(BaseConnector):

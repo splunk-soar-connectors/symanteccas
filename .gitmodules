@@ -1,3 +1,0 @@
-[submodule "dependencies/websocket-client"]
-	path = dependencies/websocket-client
-	url = git@cd.splunkdev.com:phantom-external/websocket-client.git
