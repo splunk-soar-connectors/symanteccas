@@ -1,14 +1,15 @@
 Splunk SOAR Symantec CAS
-Copyright 2021 Splunk Inc.
+Copyright (c) Phantom Cyber Corporation 2016-2017
 
 Third-party Software Attributions:
-
-Library: pudb
-Version: 2019.2
-License: MIT
-Copyright 2009 Andreas Kloeckner and contributors
 
 Library: requests
 Version: 2.25.0
 License: Apache 2.0
 Kenneth Reitz
+
+Library: websocket_client
+Version: 0.39.0
+License: GPL 2.0
+License: LGPL 3.0
+Unknown copyright
