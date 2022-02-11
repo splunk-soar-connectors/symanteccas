@@ -1,6 +1,6 @@
 # File: symanteccas_consts.py
 #
-# Copyright (c) 2016-2017 Splunk Inc.
+# Copyright (c) 2016-2022 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@
 # and limitations under the License.
 #
 #
-# of Phantom Cyber Corporation.
-SYMANTECCAS_JSON_API_KEY = 'api_key'
+SYMANTECCAS_JSON_API_KEY = 'api_key'  # pragma: allowlist secret
 SYMANTECCAS_JSON_URL = 'url'
 SYMANTECCAS_JSON_VERIFY_SERVER_CERT = 'verify_server_cert'
 SYMANTECCAS_JSON_TIMEOUT_SECS = 'timeout'
