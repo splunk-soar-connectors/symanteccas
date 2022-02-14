@@ -6,7 +6,7 @@
     "package_name": "phantom_symanteccas",
     "type": "sandbox",
     "license": "Copyright (c) 2016-2022 Splunk Inc.",
-    "main_module": "symanteccas_connector.pyc",
+    "main_module": "symanteccas_connector.py",
     "app_version": "1.0.23",
     "utctime_updated": "2022-01-07T20:46:08.000000Z",
     "product_vendor": "Symantec",
