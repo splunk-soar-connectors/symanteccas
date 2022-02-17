@@ -1,6 +1,6 @@
 # File: symanteccas_connector.py
 #
-# Copyright (c) 2016-2017 Splunk Inc.
+# Copyright (c) 2016-2022 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,18 @@
 # and limitations under the License.
 #
 #
-# of Phantom Cyber Corporation.
-# Phantom imports
-import phantom.app as phantom
-from phantom.base_connector import BaseConnector
-from phantom.action_result import ActionResult
-from phantom.vault import Vault
 
-# Local imports
-from symanteccas_consts import *
-
-import requests
 import json
 import ssl
 
+import phantom.app as phantom
+import requests
 import websocket
+from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
+from phantom.vault import Vault
+
+from symanteccas_consts import *
 
 
 class SymanteccasConnector(BaseConnector):
@@ -409,18 +406,19 @@ class SymanteccasConnector(BaseConnector):
 
 if __name__ == '__main__':
     import sys
+
     import pudb
 
     pudb.set_trace()
     if len(sys.argv) < 2:
-        print 'No test json specified as input'
+        print('No test json specified as input')
         exit(0)
     with open(sys.argv[1]) as f:
         in_json = f.read()
         in_json = json.loads(in_json)
-        print json.dumps(in_json, indent=4)
+        print(json.dumps(in_json, indent=4))
         connector = SymanteccasConnector()
         connector.print_progress_message = True
         ret_val = connector._handle_action(json.dumps(in_json), None)
-        print json.dumps(json.loads(ret_val), indent=4)
+        print(json.dumps(json.loads(ret_val), indent=4))
     exit(0)
