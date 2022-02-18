@@ -8,7 +8,7 @@ Version: 2.25.0
 License: Apache 2.0
 Kenneth Reitz
 
-Library: websocket_client
+Library: websocket-client
 Version: 0.39.0
 License: GPL 2.0
 License: LGPL 3.0
