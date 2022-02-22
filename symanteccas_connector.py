@@ -17,10 +17,12 @@
 
 import json
 import ssl
+import sys
 
 import phantom.app as phantom
 import requests
 import websocket
+from bs4 import UnicodeDammit
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 from phantom.vault import Vault
@@ -44,6 +46,21 @@ class SymanteccasConnector(BaseConnector):
         self._server_request_id = None
         return
 
+    def _handle_py_ver_compat_for_input_str(self, input_str, always_encode=False):
+        """
+        This method returns the encoded|original string based on the Python version.
+        :param input_str: Input string to be processed
+        :return: input_str (Processed input string based on following logic 'input_str - Python 3; encoded input_str - Python 2')
+        """
+
+        try:
+            if input_str and (self._python_version < 3 or always_encode):
+                input_str = UnicodeDammit(input_str).unicode_markup.encode('utf-8')
+        except:
+            self.debug_print("Error occurred while handling python 2to3 compatibility for the input string")
+
+        return input_str
+
     def initialize(self):
 
         """
@@ -53,10 +70,14 @@ class SymanteccasConnector(BaseConnector):
         phantom.APP_ERROR. If this function returns phantom.APP_ERROR, then AppConnector::handle_action will not get
         called.
         """
+        try:
+            self._python_version = int(sys.version_info[0])
+        except:
+            return self.set_status(phantom.APP_ERROR, "Error occurred while getting the Phantom server's Python major version")
 
         config = self.get_config()
         self._api_key = config[SYMANTECCAS_JSON_API_KEY]
-        self._url = config[SYMANTECCAS_JSON_URL].strip('/')
+        self._url = self._handle_py_ver_compat_for_input_str(config[SYMANTECCAS_JSON_URL].strip('/'))
         self._verify_server_cert = config.get(SYMANTECCAS_JSON_VERIFY_SERVER_CERT, False)
         self._timeout = config.get(SYMANTECCAS_JSON_TIMEOUT_SECS, SYMANTECCAS_DEFAULT_TIMEOUT)
         self._headers = {SYMANTECCAS_X_API_TOKEN: self._api_key}
@@ -174,7 +195,16 @@ class SymanteccasConnector(BaseConnector):
         self.save_progress("Configured URL: {}".format(self._url))
         self.save_progress("Configured WebSocket URL: {}".format(self._websocket_url))
 
-        ret_val, json_resp = self._make_rest_call(SYMANTECCAS_DETONATE_FILE_ENDPOINT, action_result)
+        try:
+            ret_val, json_resp = self._make_rest_call(SYMANTECCAS_DETONATE_FILE_ENDPOINT, action_result)
+        except Exception:
+            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, "Error occurred while making rest call")
+            self.set_status_save_progress(
+                phantom.APP_ERROR,
+                SYMANTECCAS_CONNECTIVITY_FAIL,
+                "Error occurred while making rest call"
+            )
+            return action_result.set_status(phantom.APP_ERROR)
 
         # Since no file is uploaded, make rest call should fail with message "No file uploaded"
         if phantom.is_fail(ret_val) and "No file uploaded" not in action_result.get_message():
@@ -405,7 +435,6 @@ class SymanteccasConnector(BaseConnector):
 
 
 if __name__ == '__main__':
-    import sys
 
     import pudb
 
