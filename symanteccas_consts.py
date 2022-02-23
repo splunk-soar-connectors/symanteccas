@@ -68,3 +68,6 @@ SYMANTECCAS_STATUS_ERROR = 2
 SYMANTECCAS_STATUS_COMPLETE = 1
 SYMANTECCAS_STATUS_COMPLETE_WITH_ERROR = 3
 SYMANTECCAS_STATUS_MAX_POLLING_COUNT = 10
+ERR_CODE_MSG = "Error code unavailable"
+ERR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters"
+TYPE_ERR_MSG = "Error occurred while connecting to the Server. Please check the asset configuration and|or the action parameters"

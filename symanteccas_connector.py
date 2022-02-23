@@ -76,7 +76,7 @@ class SymanteccasConnector(BaseConnector):
             return self.set_status(phantom.APP_ERROR, "Error occurred while getting the Phantom server's Python major version")
 
         config = self.get_config()
-        self._api_key = config[SYMANTECCAS_JSON_API_KEY]
+        self._api_key = self._handle_py_ver_compat_for_input_str(config[SYMANTECCAS_JSON_API_KEY])
         self._url = self._handle_py_ver_compat_for_input_str(config[SYMANTECCAS_JSON_URL].strip('/'))
         self._verify_server_cert = config.get(SYMANTECCAS_JSON_VERIFY_SERVER_CERT, False)
         self._timeout = config.get(SYMANTECCAS_JSON_TIMEOUT_SECS, SYMANTECCAS_DEFAULT_TIMEOUT)
@@ -96,6 +96,36 @@ class SymanteccasConnector(BaseConnector):
             self._websocket_url = self._url
 
         return phantom.APP_SUCCESS
+
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        try:
+            if e.args:
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_msg = e.args[1]
+                elif len(e.args) == 1:
+                    error_code = ERR_CODE_MSG
+                    error_msg = e.args[0]
+            else:
+                error_code = ERR_CODE_MSG
+                error_msg = ERR_MSG_UNAVAILABLE
+        except:
+            error_code = ERR_CODE_MSG
+            error_msg = ERR_MSG_UNAVAILABLE
+
+        try:
+            error_msg = self._handle_py_ver_compat_for_input_str(error_msg)
+        except TypeError:
+            error_msg = TYPE_ERR_MSG
+        except:
+            error_msg = ERR_MSG_UNAVAILABLE
+
+        return error_code, error_msg
 
     # Function that makes the REST call to the device,
     # generic function that can be called from various action handlers
@@ -127,10 +157,16 @@ class SymanteccasConnector(BaseConnector):
                                     headers=self._headers, files=files, verify=self._verify_server_cert)
 
         except Exception as e:
-            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, e)
+            error_code, error_msg = self._get_error_message_from_exception(self._handle_py_ver_compat_for_input_str(e))
+            error_text = "{0}. Error Code:{1}. Error Message:{2}".format(
+                SYMANTECCAS_ERR_SERVER_CONNECTION,
+                error_code,
+                error_msg
+            )
+            self.debug_print(error_text)
             # set the action_result status to error, the handler function
             # will most probably return as is
-            return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e), rest_resp
+            return action_result.set_status(phantom.APP_ERROR, error_text), rest_resp
 
         if response.status_code in error_resp_dict.keys():
             self.debug_print(SYMANTECCAS_ERR_FROM_SERVER.format(status=response.status_code,
@@ -195,16 +231,7 @@ class SymanteccasConnector(BaseConnector):
         self.save_progress("Configured URL: {}".format(self._url))
         self.save_progress("Configured WebSocket URL: {}".format(self._websocket_url))
 
-        try:
-            ret_val, json_resp = self._make_rest_call(SYMANTECCAS_DETONATE_FILE_ENDPOINT, action_result)
-        except Exception:
-            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, "Error occurred while making rest call")
-            self.set_status_save_progress(
-                phantom.APP_ERROR,
-                SYMANTECCAS_CONNECTIVITY_FAIL,
-                "Error occurred while making rest call"
-            )
-            return action_result.set_status(phantom.APP_ERROR)
+        ret_val, json_resp = self._make_rest_call(SYMANTECCAS_DETONATE_FILE_ENDPOINT, action_result)
 
         # Since no file is uploaded, make rest call should fail with message "No file uploaded"
         if phantom.is_fail(ret_val) and "No file uploaded" not in action_result.get_message():
