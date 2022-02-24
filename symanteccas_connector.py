@@ -157,7 +157,7 @@ class SymanteccasConnector(BaseConnector):
                                     headers=self._headers, files=files, verify=self._verify_server_cert)
 
         except Exception as e:
-            error_code, error_msg = self._get_error_message_from_exception(self._handle_py_ver_compat_for_input_str(e))
+            error_code, error_msg = self._get_error_message_from_exception(e)
             error_text = "{0}. Error Code:{1}. Error Message:{2}".format(
                 SYMANTECCAS_ERR_SERVER_CONNECTION,
                 error_code,
