@@ -1,5 +1,5 @@
 Splunk SOAR Symantec CAS
-Copyright (c) Phantom Cyber Corporation 2016-2022
+Copyright (c) 2016-2022 Splunk Inc.
 
 Third-party Software Attributions:
 
@@ -8,8 +8,7 @@ Version: 2.25.0
 License: Apache 2.0
 Kenneth Reitz
 
-Library: websocket-client
+Library: websocket_client
 Version: 0.39.0
-License: GPL 2.0
 License: LGPL 3.0
-Unknown copyright
+Copyright (C) 2010 Hiroki Ohtani(liris)
