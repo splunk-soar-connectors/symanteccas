@@ -360,7 +360,7 @@ class SymanteccasConnector(BaseConnector):
     def _query_file(self, param, action_result):
 
         # Mandatory input parameter
-        vault_id = param[SYMANTECCAS_JSON_VAULT_ID]
+        vault_id = self._handle_py_ver_compat_for_input_str(param[SYMANTECCAS_JSON_VAULT_ID])
 
         try:
             file_obj = open(Vault.get_file_path(vault_id), 'rb')
