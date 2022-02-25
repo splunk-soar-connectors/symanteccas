@@ -1,12 +1,12 @@
 [comment]: # "Auto-generated SOAR connector documentation"
 # Symantec CAS
 
-Publisher: Phantom  
-Connector Version: 1\.0\.22  
+Publisher: Splunk Community  
+Connector Version: 2\.0\.0  
 Product Vendor: Symantec  
 Product Name: Symantec CAS  
 Product Version Supported (regex): "\.\*"  
-Minimum Product Version: 5\.0\.0  
+Minimum Product Version: 5\.1\.0  
 
 This app supports file investigation on the Symantec Content Analysis System
 
