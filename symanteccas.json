@@ -1,20 +1,54 @@
 {
     "appid": "7cec56aa-f585-4e3d-8a26-a25af95c1878",
     "name": "Symantec CAS",
-    "description": "This app supports <b>file investigation</b> on the Symantec Content Analysis System",
-    "publisher": "Phantom",
+    "description": "This app supports file investigation on the Symantec Content Analysis System",
+    "publisher": "Splunk Community",
     "package_name": "phantom_symanteccas",
     "type": "sandbox",
-    "license": "Copyright (c) Phantom Cyber Corporation, 2016-2018",
-    "main_module": "symanteccas_connector.pyc",
-    "app_version": "1.0.17",
-    "utctime_updated": "2018-01-26T00:50:44.000000Z",
+    "license": "Copyright (c) 2016-2022 Splunk Inc.",
+    "main_module": "symanteccas_connector.py",
+    "app_version": "2.0.0",
+    "utctime_updated": "2022-01-07T20:46:08.000000Z",
     "product_vendor": "Symantec",
     "product_name": "Symantec CAS",
     "product_version_regex": ".*",
-    "min_phantom_version": "2.1.478",
+    "min_phantom_version": "5.1.0",
+    "python_version": "2.7",
+    "fips_compliant": false,
     "logo": "logo_symantec.svg",
     "logo_dark": "logo_symantec_dark.svg",
+    "pip_dependencies": {
+        "wheel": [
+            {
+                "module": "certifi",
+                "input_file": "wheels/certifi-2021.10.8-py2.py3-none-any.whl"
+            },
+            {
+                "module": "chardet",
+                "input_file": "wheels/chardet-3.0.4-py2.py3-none-any.whl"
+            },
+            {
+                "module": "idna",
+                "input_file": "wheels/idna-2.10-py2.py3-none-any.whl"
+            },
+            {
+                "module": "requests",
+                "input_file": "wheels/requests-2.25.0-py2.py3-none-any.whl"
+            },
+            {
+                "module": "six",
+                "input_file": "wheels/six-1.16.0-py2.py3-none-any.whl"
+            },
+            {
+                "module": "urllib3",
+                "input_file": "wheels/urllib3-1.26.7-py2.py3-none-any.whl"
+            },
+            {
+                "module": "websocket_client",
+                "input_file": "wheels/websocket_client-0.39.0-py2.py3-none-any.whl"
+            }
+        ]
+    },
     "configuration": {
         "url": {
             "description": "URL (e.g. https://10.10.10.10:8082)",
@@ -30,7 +64,7 @@
         },
         "api_key": {
             "description": "API key",
-            "data_type": "string",
+            "data_type": "password",
             "order": 2,
             "required": true
         },

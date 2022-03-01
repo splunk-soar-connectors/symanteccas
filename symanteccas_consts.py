@@ -1,17 +1,20 @@
-# --
-# File: symanteccas/symanteccas_consts.py
+# File: symanteccas_consts.py
 #
-# Copyright (c) Phantom Cyber Corporation, 2016-2018
+# Copyright (c) 2016-2022 Splunk Inc.
 #
-# This unpublished material is proprietary to Phantom Cyber.
-# All rights reserved. The methods and
-# techniques described herein are considered trade secrets
-# and/or confidential. Reproduction or distribution, in whole
-# or in part, is forbidden except by express written permission
-# of Phantom Cyber Corporation.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# --
-SYMANTECCAS_JSON_API_KEY = 'api_key'
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied. See the License for the specific language governing permissions
+# and limitations under the License.
+#
+#
+SYMANTECCAS_JSON_API_KEY = 'api_key'  # pragma: allowlist secret
 SYMANTECCAS_JSON_URL = 'url'
 SYMANTECCAS_JSON_VERIFY_SERVER_CERT = 'verify_server_cert'
 SYMANTECCAS_JSON_TIMEOUT_SECS = 'timeout'
@@ -65,3 +68,6 @@ SYMANTECCAS_STATUS_ERROR = 2
 SYMANTECCAS_STATUS_COMPLETE = 1
 SYMANTECCAS_STATUS_COMPLETE_WITH_ERROR = 3
 SYMANTECCAS_STATUS_MAX_POLLING_COUNT = 10
+ERR_CODE_MSG = "Error code unavailable"
+ERR_MSG_UNAVAILABLE = "Error message unavailable. Please check the asset configuration and|or action parameters"
+TYPE_ERR_MSG = "Error occurred while connecting to the Server. Please check the asset configuration and|or the action parameters"

@@ -1,35 +1,33 @@
-# File: symanteccas/symanteccas_connector.py
+# File: symanteccas_connector.py
 #
-# Copyright (c) Phantom Cyber Corporation, 2016-2018
+# Copyright (c) 2016-2022 Splunk Inc.
 #
-# This unpublished material is proprietary to Phantom Cyber.
-# All rights reserved. The methods and
-# techniques described herein are considered trade secrets
-# and/or confidential. Reproduction or distribution, in whole
-# or in part, is forbidden except by express written permission
-# of Phantom Cyber Corporation.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# --
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied. See the License for the specific language governing permissions
+# and limitations under the License.
+#
+#
 
-# Phantom imports
-import phantom.app as phantom
-from phantom.base_connector import BaseConnector
-from phantom.action_result import ActionResult
-from phantom.vault import Vault
-
-# Local imports
-from symanteccas_consts import *
-
-import requests
 import json
 import ssl
-import os
+import sys
 
-app_dir = os.path.dirname(os.path.abspath(__file__))  # noqa
-if (os.path.exists('{}/dependencies'.format(app_dir))):  # noqa
-    os.sys.path.insert(0, '{}/dependencies/websocket-client'.format(app_dir))  # noqa
-    os.sys.path.insert(0, '{}/dependencies'.format(app_dir))  # noqa
-import websocket  # pylint: disable=E0401
+import phantom.app as phantom
+import requests
+import websocket
+from bs4 import UnicodeDammit
+from phantom.action_result import ActionResult
+from phantom.base_connector import BaseConnector
+from phantom.vault import Vault
+
+from symanteccas_consts import *
 
 
 class SymanteccasConnector(BaseConnector):
@@ -48,6 +46,21 @@ class SymanteccasConnector(BaseConnector):
         self._server_request_id = None
         return
 
+    def _handle_py_ver_compat_for_input_str(self, input_str, always_encode=False):
+        """
+        This method returns the encoded|original string based on the Python version.
+        :param input_str: Input string to be processed
+        :return: input_str (Processed input string based on following logic 'input_str - Python 3; encoded input_str - Python 2')
+        """
+
+        try:
+            if input_str and (self._python_version < 3 or always_encode):
+                input_str = UnicodeDammit(input_str).unicode_markup.encode('utf-8')
+        except:
+            self.debug_print("Error occurred while handling python 2to3 compatibility for the input string")
+
+        return input_str
+
     def initialize(self):
 
         """
@@ -57,10 +70,14 @@ class SymanteccasConnector(BaseConnector):
         phantom.APP_ERROR. If this function returns phantom.APP_ERROR, then AppConnector::handle_action will not get
         called.
         """
+        try:
+            self._python_version = int(sys.version_info[0])
+        except:
+            return self.set_status(phantom.APP_ERROR, "Error occurred while getting the Phantom server's Python major version")
 
         config = self.get_config()
-        self._api_key = config[SYMANTECCAS_JSON_API_KEY]
-        self._url = config[SYMANTECCAS_JSON_URL].strip('/')
+        self._api_key = self._handle_py_ver_compat_for_input_str(config[SYMANTECCAS_JSON_API_KEY])
+        self._url = self._handle_py_ver_compat_for_input_str(config[SYMANTECCAS_JSON_URL].strip('/'))
         self._verify_server_cert = config.get(SYMANTECCAS_JSON_VERIFY_SERVER_CERT, False)
         self._timeout = config.get(SYMANTECCAS_JSON_TIMEOUT_SECS, SYMANTECCAS_DEFAULT_TIMEOUT)
         self._headers = {SYMANTECCAS_X_API_TOKEN: self._api_key}
@@ -79,6 +96,36 @@ class SymanteccasConnector(BaseConnector):
             self._websocket_url = self._url
 
         return phantom.APP_SUCCESS
+
+    def _get_error_message_from_exception(self, e):
+        """ This method is used to get appropriate error message from the exception.
+        :param e: Exception object
+        :return: error message
+        """
+
+        try:
+            if e.args:
+                if len(e.args) > 1:
+                    error_code = e.args[0]
+                    error_msg = e.args[1]
+                elif len(e.args) == 1:
+                    error_code = ERR_CODE_MSG
+                    error_msg = e.args[0]
+            else:
+                error_code = ERR_CODE_MSG
+                error_msg = ERR_MSG_UNAVAILABLE
+        except:
+            error_code = ERR_CODE_MSG
+            error_msg = ERR_MSG_UNAVAILABLE
+
+        try:
+            error_msg = self._handle_py_ver_compat_for_input_str(error_msg)
+        except TypeError:
+            error_msg = TYPE_ERR_MSG
+        except:
+            error_msg = ERR_MSG_UNAVAILABLE
+
+        return error_code, error_msg
 
     # Function that makes the REST call to the device,
     # generic function that can be called from various action handlers
@@ -110,10 +157,16 @@ class SymanteccasConnector(BaseConnector):
                                     headers=self._headers, files=files, verify=self._verify_server_cert)
 
         except Exception as e:
-            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, object=e)
+            error_code, error_msg = self._get_error_message_from_exception(e)
+            error_text = "{0}. Error Code:{1}. Error Message:{2}".format(
+                SYMANTECCAS_ERR_SERVER_CONNECTION,
+                error_code,
+                error_msg
+            )
+            self.debug_print(error_text)
             # set the action_result status to error, the handler function
             # will most probably return as is
-            return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e), rest_resp
+            return action_result.set_status(phantom.APP_ERROR, error_text), rest_resp
 
         if response.status_code in error_resp_dict.keys():
             self.debug_print(SYMANTECCAS_ERR_FROM_SERVER.format(status=response.status_code,
@@ -215,7 +268,7 @@ class SymanteccasConnector(BaseConnector):
 
         except Exception as e:
             # In case of any other error scenarios
-            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, object=e)
+            self.debug_print(SYMANTECCAS_CONNECTIVITY_FAIL, e)
             self.set_status_save_progress(phantom.APP_ERROR, SYMANTECCAS_CONNECTIVITY_FAIL, e)
             return action_result.set_status(phantom.APP_ERROR)
 
@@ -253,7 +306,7 @@ class SymanteccasConnector(BaseConnector):
                     sslopt={"cert_reqs": ssl.CERT_NONE})
 
         except Exception as e:
-            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, object=e)
+            self.debug_print(SYMANTECCAS_ERR_SERVER_CONNECTION, e)
             return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_SERVER_CONNECTION, e)
 
         return phantom.APP_SUCCESS
@@ -307,7 +360,7 @@ class SymanteccasConnector(BaseConnector):
     def _query_file(self, param, action_result):
 
         # Mandatory input parameter
-        vault_id = param[SYMANTECCAS_JSON_VAULT_ID]
+        vault_id = self._handle_py_ver_compat_for_input_str(param[SYMANTECCAS_JSON_VAULT_ID])
 
         try:
             file_obj = open(Vault.get_file_path(vault_id), 'rb')
@@ -341,7 +394,7 @@ class SymanteccasConnector(BaseConnector):
                 self.debug_print(SYMANTECCAS_ERR_WEBSOCKET_TIMEOUT)
                 return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_WEBSOCKET_TIMEOUT, wse), None
             except Exception as e:
-                self.debug_print(SYMANTECCAS_ERR_WEBSOCKET, object=e)
+                self.debug_print(SYMANTECCAS_ERR_WEBSOCKET, e)
                 return action_result.set_status(phantom.APP_ERROR, SYMANTECCAS_ERR_WEBSOCKET, e), None
 
             # If we get response before timeout
@@ -409,19 +462,19 @@ class SymanteccasConnector(BaseConnector):
 
 
 if __name__ == '__main__':
-    import sys
+
     import pudb
 
     pudb.set_trace()
     if len(sys.argv) < 2:
-        print 'No test json specified as input'
-        exit(0)
+        print('No test json specified as input')
+        sys.exit(0)
     with open(sys.argv[1]) as f:
         in_json = f.read()
         in_json = json.loads(in_json)
-        print json.dumps(in_json, indent=4)
+        print(json.dumps(in_json, indent=4))
         connector = SymanteccasConnector()
         connector.print_progress_message = True
         ret_val = connector._handle_action(json.dumps(in_json), None)
-        print json.dumps(json.loads(ret_val), indent=4)
-    exit(0)
+        print(json.dumps(json.loads(ret_val), indent=4))
+    sys.exit(0)
